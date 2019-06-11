@@ -1,9 +1,8 @@
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.nio.file.*;
 import java.nio.file.StandardCopyOption;
 
@@ -29,7 +28,9 @@ public class menu {
         else
             copyFileTo(arquivo, diretorioDestino);
         
-        getAllClearDirectories(getAllDirectories()).forEach((x)->System.out.println(x));
+        ArrayList<Path> paths = getAllClearDirectories(getAllDirectories());
+
+        concatDestinationDirectory(diretorioDestino, paths);
     }
 
     private static void createDirectory(Path path) {
@@ -53,6 +54,23 @@ public class menu {
         return caminhos;
     }
 
+    private void getAllDirectoriesRecursive( String path ) {
+        File root = new File( path );
+        File[] list = root.listFiles();
+
+        if (list == null) return;
+
+        for ( File f : list ) {
+            if ( f.isDirectory() ) {
+                getAllDirectoriesRecursive( f.getAbsolutePath() );
+                System.out.println( "Dir:" + f.getAbsoluteFile() );
+            }
+            else {
+                System.out.println( "File:" + f.getAbsoluteFile() );
+            }
+        }
+    }
+
     private static ArrayList<Path> getAllClearDirectories(ArrayList<Path> paths) {
         Path diretorioAtual = Paths.get(System.getProperty("user.dir"));
 
@@ -62,6 +80,15 @@ public class menu {
             }).forEach(resultPaths::add);
         
         return resultPaths;
+    }
+
+    private static ArrayList<Path> concatDestinationDirectory(Path diretorioDestino, ArrayList<Path> paths) {
+        ArrayList<Path> resultPaths = new ArrayList<>();
+        paths.stream().map((Path path)-> {
+            return Paths.get(diretorioDestino + path.toString());
+        }).forEach(resultPaths::add);
+        resultPaths.forEach(x -> System.out.println(x));
+        return null;
     }
 
     private static void copyFileTo(Path arquivo, Path diretorioDestino) {
