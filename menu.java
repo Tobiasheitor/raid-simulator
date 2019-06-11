@@ -37,6 +37,7 @@ public class menu {
         }
         return caminhos;
     }
+<<<<<<< HEAD
 
     private static void copyFileTo(Path arquivo, Path diretorioDestino) {
         try {
@@ -46,4 +47,6 @@ public class menu {
             System.out.println("Error " + e);
         }
     }
+=======
+>>>>>>> 2baf25dfef4253a58771db1b69701462bd8b3062
 }
