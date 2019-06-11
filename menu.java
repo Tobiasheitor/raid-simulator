@@ -2,28 +2,43 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.nio.file.*;
 import java.nio.file.StandardCopyOption;
 
 public class menu {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         //getAllDirectories().stream().forEach(x->System.out.println(x.getFileName()));;
         Path arquivo = Paths.get("C:\\Users\\tobias.goettert_est\\Desktop\\java teste\\copiar.txt");
-        Path diretorioDestino = Paths.get("C:\\Users\\tobias.goettert_est\\Desktop\\java teste\\raid-simulator");
-        copyFileTo(arquivo, diretorioDestino);
+        //Path diretorioDestino = Paths.get("C:\\Users\\tobias.goettert_est\\Desktop\\java teste\\raid-simulator\\teste");
+        
+        Path diretorioDestino = Paths.get(args[0]);
+
+        if(Files.isDirectory(diretorioDestino)) {
+            createDirectory(diretorioDestino);
+        }
+        else {
+            diretorioDestino = diretorioDestino.getParent();
+            createDirectory(diretorioDestino);
+        }
+        
+        if(!Files.exists(arquivo))
+            throw new Exception("Arquivo não existe");
+        else
+            copyFileTo(arquivo, diretorioDestino);
+        
+        getAllClearDirectories(getAllDirectories()).forEach((x)->System.out.println(x));
     }
 
-    private static boolean isValidPath(Path path) {
-        if (!Files.exists(path)) {
-            return false;
-        }
+    private static void createDirectory(Path path) {
         try {
-            path.toRealPath();
-        } catch (IOException e) {
-            return false;
+            Path dir = Files.createDirectory(path);
+            System.out.println("Diretorio \"" + dir + "\" criado");
+        } catch (IOException e1) {
+            System.out.println("Falha " + e1 + " ao criar o diretorio");
         }
-        return true;
     }
 
     private static ArrayList<Path> getAllDirectories() {
@@ -38,6 +53,17 @@ public class menu {
         return caminhos;
     }
 
+    private static ArrayList<Path> getAllClearDirectories(ArrayList<Path> paths) {
+        Path diretorioAtual = Paths.get(System.getProperty("user.dir"));
+
+        ArrayList<Path> resultPaths = new ArrayList<>();
+        paths.stream().map((Path path)-> {
+                return Paths.get(path.toString().replace(diretorioAtual.toString(), ""));
+            }).forEach(resultPaths::add);
+        
+        return resultPaths;
+    }
+
     private static void copyFileTo(Path arquivo, Path diretorioDestino) {
         try {
             Files.copy(arquivo, Paths.get(diretorioDestino.toString() + "\\" + arquivo.getFileName()), StandardCopyOption.REPLACE_EXISTING);
@@ -46,5 +72,5 @@ public class menu {
             System.out.println("Error " + e);
         }
     }
-    
+
 }
