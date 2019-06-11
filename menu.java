@@ -3,11 +3,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.nio.file.*;
+import java.nio.file.StandardCopyOption;
 
 public class menu {
 
     public static void main(String[] args) {
-        getAllDirectories().stream().forEach(x->System.out.println(x.getFileName()));;
+        //getAllDirectories().stream().forEach(x->System.out.println(x.getFileName()));;
+        Path arquivo = Paths.get("C:\\Users\\tobias.goettert_est\\Desktop\\java teste\\copiar.txt");
+        Path diretorioDestino = Paths.get("C:\\Users\\tobias.goettert_est\\Desktop\\java teste\\raid-simulator");
+        copyFileTo(arquivo, diretorioDestino);
     }
 
     private static boolean isValidPath(Path path) {
@@ -32,5 +36,14 @@ public class menu {
             System.out.println("Error " + e);
         }
         return caminhos;
+    }
+
+    private static void copyFileTo(Path arquivo, Path diretorioDestino) {
+        try {
+            Files.copy(arquivo, Paths.get(diretorioDestino.toString() + "\\" + arquivo.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            System.out.println("Success to copy");
+        } catch (IOException e) {
+            System.out.println("Error " + e);
+        }
     }
 }
