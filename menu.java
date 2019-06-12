@@ -9,36 +9,37 @@ import java.nio.file.StandardCopyOption;
 public class menu {
 
     public static void main(String[] args) throws Exception {
-        //getAllDirectories().stream().forEach(x->System.out.println(x.getFileName()));;
-        Path arquivo = Paths.get("C:\\Users\\tobias.goettert_est\\Desktop\\java teste\\copiar.txt");
-        //Path diretorioDestino = Paths.get("C:\\Users\\tobias.goettert_est\\Desktop\\java teste\\raid-simulator\\teste");
-        
         Path diretorioDestino = Paths.get(args[0]);
-
-        if(Files.isDirectory(diretorioDestino)) {
-            createDirectory(diretorioDestino);
+        
+        if(Files.exists(diretorioDestino) && Files.isDirectory(diretorioDestino)) {
+            //createDirectory(diretorioDestino);
         }
         else {
             diretorioDestino = diretorioDestino.getParent();
-            createDirectory(diretorioDestino);
         }
-        
-        if(!Files.exists(arquivo))
-            throw new Exception("Arquivo não existe");
-        else
-            copyFileTo(arquivo, diretorioDestino);
         
         ArrayList<Path> paths = getAllClearDirectories(getAllDirectories());
 
         concatDestinationDirectory(diretorioDestino, paths);
     }
 
-    private static void createDirectory(Path path) {
+    private static Path verifyDestination(Path path) {
+        if(Files.exists(path)) {
+            if(Files.isDirectory(path)) {
+                return path;
+            }
+            return path.getParent();
+        }
+        if(!Files.isDirectory(path)) {
+            path = path.getParent();
+        }
         try {
             Path dir = Files.createDirectory(path);
             System.out.println("Diretorio \"" + dir + "\" criado");
+            return dir;
         } catch (IOException e1) {
             System.out.println("Falha " + e1 + " ao criar o diretorio");
+            return null;
         }
     }
 
@@ -54,21 +55,22 @@ public class menu {
         return caminhos;
     }
 
-    private void getAllDirectoriesRecursive( String path ) {
-        File root = new File( path );
+    private static ArrayList<Path> getAllDirectoriesRecursive( Path path ) {
+        File root = path.toFile();
         File[] list = root.listFiles();
+        ArrayList<Path> paths = new ArrayList<>();
 
-        if (list == null) return;
+        if (list == null) return paths;
 
         for ( File f : list ) {
             if ( f.isDirectory() ) {
-                getAllDirectoriesRecursive( f.getAbsolutePath() );
-                System.out.println( "Dir:" + f.getAbsoluteFile() );
+                paths.addAll( getAllDirectoriesRecursive( Paths.get(f.getAbsolutePath()) ) );
             }
             else {
-                System.out.println( "File:" + f.getAbsoluteFile() );
+                paths.add(Paths.get(f.getAbsolutePath()));
             }
         }
+        return paths;
     }
 
     private static ArrayList<Path> getAllClearDirectories(ArrayList<Path> paths) {
