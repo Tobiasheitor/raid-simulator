@@ -10,17 +10,14 @@ public class menu {
 
     public static void main(String[] args) throws Exception {
         Path diretorioDestino = Paths.get(args[0]);
-        
-        if(Files.exists(diretorioDestino) && Files.isDirectory(diretorioDestino)) {
-            //createDirectory(diretorioDestino);
-        }
-        else {
-            diretorioDestino = diretorioDestino.getParent();
-        }
-        
-        ArrayList<Path> paths = getAllClearDirectories(getAllDirectories());
+        Path diretorioAtual = Paths.get(System.getProperty("user.dir"));
 
-        concatDestinationDirectory(diretorioDestino, paths);
+        diretorioDestino = verifyDestination(diretorioDestino);
+                
+        ArrayList<Path> paths = getAllDirectoriesRecursive(diretorioAtual);
+        //paths = getAllClearDirectories(diretorioAtual, paths);
+        //paths = concatDestinationDirectory(diretorioDestino, paths);
+        copyFileTo(diretorioDestino, paths);
     }
 
     private static Path verifyDestination(Path path) {
@@ -43,18 +40,6 @@ public class menu {
         }
     }
 
-    private static ArrayList<Path> getAllDirectories() {
-        ArrayList<Path> caminhos = new ArrayList<>();
-        String pwd = System.getProperty("user.dir");
-        Path dir = Paths.get(pwd);
-        try {
-            Files.walk(dir, 1).forEach(path -> caminhos.add(path));
-        } catch (IOException e) {
-            System.out.println("Error " + e);
-        }
-        return caminhos;
-    }
-
     private static ArrayList<Path> getAllDirectoriesRecursive( Path path ) {
         File root = path.toFile();
         File[] list = root.listFiles();
@@ -73,9 +58,7 @@ public class menu {
         return paths;
     }
 
-    private static ArrayList<Path> getAllClearDirectories(ArrayList<Path> paths) {
-        Path diretorioAtual = Paths.get(System.getProperty("user.dir"));
-
+    private static ArrayList<Path> getAllClearDirectories(Path diretorioAtual, ArrayList<Path> paths) {
         ArrayList<Path> resultPaths = new ArrayList<>();
         paths.stream().map((Path path)-> {
                 return Paths.get(path.toString().replace(diretorioAtual.toString(), ""));
@@ -89,17 +72,19 @@ public class menu {
         paths.stream().map((Path path)-> {
             return Paths.get(diretorioDestino + path.toString());
         }).forEach(resultPaths::add);
-        resultPaths.forEach(x -> System.out.println(x));
-        return null;
+        return resultPaths;
     }
 
-    private static void copyFileTo(Path arquivo, Path diretorioDestino) {
-        try {
-            Files.copy(arquivo, Paths.get(diretorioDestino.toString() + "\\" + arquivo.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("Success to copy");
-        } catch (IOException e) {
-            System.out.println("Error " + e);
-        }
+    private static void copyFileTo(Path diretorioDestino, ArrayList<Path> paths) {
+        System.out.println(paths.size() + " files to copy");
+        paths.forEach((path)-> {
+            try {
+                Files.copy(path, Paths.get(diretorioDestino.toString() + "\\" + path.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Success to copy " + path);
+            } catch (IOException e) {
+                System.out.println("Error to copy " + e);
+            }
+        });
     }
 
 }
