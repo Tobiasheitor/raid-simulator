@@ -7,8 +7,8 @@ if not exist %source% echo Invalid directory.
 if not exist %destination% mkdir %destination%
 
 :while
-rm -r %destination%
-xcopy %source%* %destination% /s/y/c/v
+del /Q /F /S %destination%
+xcopy %source%* %destination% /s/y/c/v/k
 echo. 
 echo Finished copying %source% to %destination%
 echo.
